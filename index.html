@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Augent Demos</title>
-  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="icon" type="image/png" href="../static/favicon.png" />
   <!-- Google Font (Inter) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,16 +14,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
-      /* --bg-1: #0f1724;
-      --bg-2: #071129; */
       --accent: #00d4ff;
-      
-      /* --muted: #94a3b8; */
       --glass: rgba(255,255,255,0.03);
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
     }
     body{
-      /* background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); */
       color: #0f1724;
       background: white;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -41,10 +36,85 @@
       backdrop-filter: blur(6px);
       transition: background 0.4s ease, border 0.4s ease;
     }
+    
+    /* Iframe container styles */
+    #iframe-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+    }
+    
+    #iframe-container.active {
+      display: flex;
+    }
+    
+    #iframe-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      background: white;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    #back-button {
+      background: linear-gradient(135deg, var(--accent), #7ee7ff);
+      color: #04202a;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    #back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    }
+    
+    #app-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f1724;
+    }
+    
+    #proxy-iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+    
+    #main-content {
+      transition: opacity 0.3s ease;
+    }
+    
+    #main-content.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="min-h-screen text-black antialiased">
-  <div class="max-w-5xl mx-auto px-6 py-16">
+  <!-- Iframe Container -->
+  <div id="iframe-container">
+    <div id="iframe-header">
+      <button id="back-button">← Back to Hub</button>
+      <span id="app-title"></span>
+    </div>
+    <iframe id="proxy-iframe" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content" class="max-w-5xl mx-auto px-6 py-16">
     <!-- Header -->
     <header class="fixed top-0 left-0 w-full z-10 transition-all duration-500 bg-transparent py-4">
       <div class="max-w-5xl mx-auto flex items-center gap-4 px-6">
@@ -57,12 +127,11 @@
     </header>
 
     <div class="pt-24">
-
       <!-- Cards grid -->
       <main>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
-          <a href="https://insurance-ai-poc.onrender.com/" target="_blank" rel="noopener noreferrer" class="group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
+          <a href="https://insurance-ai-poc.onrender.com/" data-route="insurance-ai" data-title="Insurance AI POC" class="demo-card group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
             <div class="flex items-start gap-4">
               <div class="flex-shrink-0 rounded-lg w-12 h-12 grid place-items-center text-lg font-bold" style="background:linear-gradient(135deg,var(--accent),#7ee7ff); color:#04202a">
                 IA
@@ -75,7 +144,7 @@
             </div>
           </a>
 
-          <a href="https://nldb-project.onrender.com/" target="_blank" rel="noopener noreferrer" class="group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
+          <a href="https://nldb-project.onrender.com/" data-route="nldb" data-title="NLDB Project" class="demo-card group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
             <div class="flex items-start gap-4">
               <div class="flex-shrink-0 rounded-lg w-12 h-12 grid place-items-center text-lg font-bold" style="background:linear-gradient(135deg,#7cf6d4,#00d4ff); color:#013033">
                 NL
@@ -88,10 +157,10 @@
             </div>
           </a>
 
-          <a href="https://idp-4bph.onrender.com/" target="_blank" rel="noopener noreferrer" class="group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
+          <a href="https://idp-4bph.onrender.com/" data-route="idp" data-title="IDP" class="demo-card group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
             <div class="flex items-start gap-4">
               <div class="flex-shrink-0 rounded-lg w-12 h-12 grid place-items-center text-lg font-bold" style="background:linear-gradient(135deg,#ffd28a,#ff9b6b); color:#3b1600">
-                DB
+                IDP
               </div>
               <div class="flex-1">
                 <h3 class="text-lg font-semibold">IDP</h3>
@@ -101,7 +170,7 @@
             </div>
           </a>
 
-          <a href="https://insurance-comparison-poc-wte3.onrender.com" target="_blank" rel="noopener noreferrer" class="group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
+          <a href="https://insurance-comparison-poc-wte3.onrender.com" data-route="insurance-comparison" data-title="Insurance Comparison POC" class="demo-card group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
             <div class="flex items-start gap-4">
               <div class="flex-shrink-0 rounded-lg w-12 h-12 grid place-items-center text-lg font-bold" style="background:linear-gradient(135deg,#b3a0ff,#7f8cff); color:#0b0533">
                 IC
@@ -120,6 +189,74 @@
   </div>
 
   <script>
+    // Route mapping
+    const routes = {};
+    
+    // Initialize routes from cards
+    document.querySelectorAll('.demo-card').forEach(card => {
+      const route = card.getAttribute('data-route');
+      const url = card.getAttribute('href');
+      const title = card.getAttribute('data-title');
+      routes[route] = { url, title };
+    });
+
+    // DOM elements
+    const iframeContainer = document.getElementById('iframe-container');
+    const mainContent = document.getElementById('main-content');
+    const proxyIframe = document.getElementById('proxy-iframe');
+    const backButton = document.getElementById('back-button');
+    const appTitle = document.getElementById('app-title');
+
+    // Load app in iframe
+    function loadApp(route) {
+      const app = routes[route];
+      if (!app) return;
+
+      proxyIframe.src = app.url;
+      appTitle.textContent = app.title;
+      iframeContainer.classList.add('active');
+      mainContent.classList.add('hidden');
+      
+      // Update URL without reload
+      history.pushState({ route }, '', `/${route}`);
+    }
+
+    // Go back to hub
+    function goBack() {
+      iframeContainer.classList.remove('active');
+      mainContent.classList.remove('hidden');
+      proxyIframe.src = '';
+      history.pushState({}, '', '/');
+    }
+
+    // Handle card clicks
+    document.querySelectorAll('.demo-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        const route = card.getAttribute('data-route');
+        loadApp(route);
+      });
+    });
+
+    // Back button
+    backButton.addEventListener('click', goBack);
+
+    // Handle browser back/forward
+    window.addEventListener('popstate', (e) => {
+      if (e.state && e.state.route) {
+        loadApp(e.state.route);
+      } else {
+        goBack();
+      }
+    });
+
+    // Check initial URL
+    const currentPath = window.location.pathname.slice(1);
+    if (currentPath && routes[currentPath]) {
+      loadApp(currentPath);
+    }
+
+    // Scroll handler for main content
     const body = document.body;
     window.addEventListener('scroll', () => {
       if (window.scrollY > 50) {
