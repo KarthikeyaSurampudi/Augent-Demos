@@ -143,8 +143,7 @@
               <div class="opacity-0 group-hover:opacity-100 transition text-gray-300">→</div>
             </div>
           </a>
-
-          <a href="https://nldb-project.onrender.com/" data-route="nldb" data-title="NLDB Project" class="demo-card group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
+          <a href="https://nldb-project.onrender.com/" target="_blank" rel="noopener noreferrer" class="group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
             <div class="flex items-start gap-4">
               <div class="flex-shrink-0 rounded-lg w-12 h-12 grid place-items-center text-lg font-bold" style="background:linear-gradient(135deg,#7cf6d4,#00d4ff); color:#013033">
                 NL
@@ -207,11 +206,16 @@
     const backButton = document.getElementById('back-button');
     const appTitle = document.getElementById('app-title');
 
+    // Track iframe load attempts
+    let iframeLoadTimeout = null;
+    let currentRoute = null;
+
     // Load app in iframe
     function loadApp(route) {
       const app = routes[route];
       if (!app) return;
 
+      currentRoute = route;
       proxyIframe.src = app.url;
       appTitle.textContent = app.title;
       iframeContainer.classList.add('active');
@@ -219,6 +223,39 @@
       
       // Update URL without reload
       history.pushState({ route }, '', `/${route}`);
+
+      // Set timeout to detect if iframe fails to load
+      clearTimeout(iframeLoadTimeout);
+      iframeLoadTimeout = setTimeout(() => {
+        // If iframe hasn't loaded after 3 seconds, assume it's blocked
+        checkIframeBlocked(app.url, route);
+      }, 3000);
+    }
+
+    // Check if iframe is blocked and fallback to new tab
+    function checkIframeBlocked(url, route) {
+      try {
+        // Try to access iframe content - will throw error if blocked
+        const iframeDoc = proxyIframe.contentDocument || proxyIframe.contentWindow.document;
+        
+        // If we can't access it or it's empty, it's likely blocked
+        if (!iframeDoc || iframeDoc.body.children.length === 0) {
+          fallbackToNewTab(url, route);
+        }
+      } catch (e) {
+        // Cross-origin error means it loaded but we can't access it (this is OK)
+        // If there's a different error, fall back
+        if (!e.message.includes('cross-origin')) {
+          fallbackToNewTab(url, route);
+        }
+      }
+    }
+
+    // Fallback to opening in new tab
+    function fallbackToNewTab(url, route) {
+      console.log(`Cannot embed ${url} - opening in new tab`);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      goBack();
     }
 
     // Go back to hub
@@ -226,8 +263,41 @@
       iframeContainer.classList.remove('active');
       mainContent.classList.remove('hidden');
       proxyIframe.src = '';
+      currentRoute = null;
+      clearTimeout(iframeLoadTimeout);
       history.pushState({}, '', '/');
     }
+
+    // Handle iframe load success
+    proxyIframe.addEventListener('load', () => {
+      clearTimeout(iframeLoadTimeout);
+      
+      // Additional check for blocked content
+      try {
+        const iframeDoc = proxyIframe.contentDocument || proxyIframe.contentWindow.document;
+        if (iframeDoc && iframeDoc.body && iframeDoc.body.children.length === 0) {
+          // Empty body might indicate blocking
+          if (currentRoute) {
+            const app = routes[currentRoute];
+            if (app) {
+              fallbackToNewTab(app.url, currentRoute);
+            }
+          }
+        }
+      } catch (e) {
+        // Cross-origin is fine, means it loaded successfully
+      }
+    });
+
+    // Handle iframe error
+    proxyIframe.addEventListener('error', () => {
+      if (currentRoute) {
+        const app = routes[currentRoute];
+        if (app) {
+          fallbackToNewTab(app.url, currentRoute);
+        }
+      }
+    });
 
     // Handle card clicks
     document.querySelectorAll('.demo-card').forEach(card => {
