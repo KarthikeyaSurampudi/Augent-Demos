@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Augent Demos</title>
-  <link rel="icon" type="image/png" href="../static/favicon.png" />
+  <link rel="icon" type="image/png" href="images/favicon.png" />
   <!-- Google Font (Inter) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +26,10 @@
     }
     body header{
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        background: white;
+    }
+    body.scrolled header{
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
     body .card-border{
       border: 1px solid rgba(0,0,0,0.05);
@@ -116,7 +120,7 @@
   <!-- Main Content -->
   <div id="main-content" class="max-w-5xl mx-auto px-6 py-16">
     <!-- Header -->
-    <header class="fixed top-0 left-0 w-full z-10 transition-all duration-500 bg-transparent py-4">
+    <header class="fixed top-0 left-0 w-full z-10 transition-all duration-500 bg-white py-4">
       <div class="max-w-5xl mx-auto flex items-center gap-4 px-6">
         <img src="images/logo.png" alt="Company logo" class="h-24 w-28 object-contain" />
         <div>
@@ -202,6 +206,18 @@
               <div class="flex-1">
                 <h3 class="text-lg font-semibold">Shipping Trade Impact Analyzer</h3>
                 <p class="text-sm text-gray-400 mt-1">A real-time tool that tracks global shipping disruptions from live news and simulates impact metrics for instant operational insight.</p>
+              </div>
+              <div class="opacity-0 group-hover:opacity-100 transition text-gray-300">→</div>
+            </div>
+          </a>
+          <a href="https://shipping-trade-impact-analyzer-1.onrender.com/" data-route="ewd" data-title="EWD" class="demo-card group block rounded-2xl p-6 card-border hover:scale-[1.02] transition transform">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 rounded-lg w-12 h-12 grid place-items-center text-lg font-bold" style="background:linear-gradient(135deg,#7cf6d4,#00d4ff); color:#013033">
+                EWD
+              </div>
+              <div class="flex-1">
+                <h3 class="text-lg font-semibold">Ecommerce Whatsapp Dashboard</h3>
+                <p class="text-sm text-gray-400 mt-1">A whatsapp dashboard with real-time monitoring & analytics for ecommerce</p>
               </div>
               <div class="opacity-0 group-hover:opacity-100 transition text-gray-300">→</div>
             </div>
